@@ -13,6 +13,7 @@ import android.view.MenuItem;
 import android.widget.Button;
 
 
+
 public class MainActivity extends AppCompatActivity {
 
     @Override
@@ -33,7 +34,11 @@ public class MainActivity extends AppCompatActivity {
 
         final Button openFile = findViewById(R.id.openFile);
         openFile.setOnClickListener(v -> {
+            /*
+            wtf is this tag issue
+             */
             Log.d(TAG, "Open file button clicked");
+
             startOpenFile();
         });
     }
@@ -49,7 +54,9 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("image/*");
+        /*
         startActivityForResult(intent, READ_REQUEST_CODE);
+        */
     }
 
 

@@ -34,7 +34,7 @@
         android:id="@+id/openFile"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:contentDescription="@string/open_file"
+        android:contentDescription=""
         android:scaleType="fitCenter" />
 
 </android.support.design.widget.CoordinatorLayout>
