@@ -15,6 +15,9 @@ import android.widget.Button;
 
 
 public class MainActivity extends AppCompatActivity {
+    /** Default logging tag for messages from the main activity. */
+    private static final String TAG = "FinalProject";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         final Button openFile = findViewById(R.id.openFile);
-        openFile.setOnClickListener(v -> {
+        openFile.setOnClickListener(v  -> {
             /*
             wtf is this tag issue
              */
