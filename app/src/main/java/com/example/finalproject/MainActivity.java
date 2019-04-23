@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         final Button openFile = findViewById(R.id.openFile);
-        openFile.setOnClickListener(v  -> {
+        openFile.setOnClickListener(v -> {
             /*
             wtf is this tag issue
              */
