@@ -1,6 +1,7 @@
 package com.example.finalproject;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -26,6 +27,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
@@ -38,9 +40,11 @@ import com.android.volley.toolbox.ImageRequest;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Objects;
 
 /*
 I think we need to turn "send" to "save image" instead since you can hijack the MP1 info to do so.
@@ -54,6 +58,10 @@ public class MainActivity extends AppCompatActivity {
      * the factor determined by the spinner
      */
     public static int FACTOR = 1;
+
+    /** Constant to request an image capture. */
+    private static final int IMAGE_CAPTURE_REQUEST_CODE = 1;
+
 
     /** Request queue for our network requests. */
     private static RequestQueue requestQueue = null;
@@ -340,4 +348,80 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
-}
+
+    /*
+    also taken from MP1 -- opening a file is REALLY complicated yeesh
+     */
+
+    /** Current file that we are using for our image request. */
+    private boolean photoRequestActive = false;
+
+    /** Whether a current photo request is being processed. */
+    private File currentPhotoFile = null;
+
+    @Override
+    public void onActivityResult(final int requestCode, final int resultCode,
+                                 final Intent resultData) {
+        if (resultCode != Activity.RESULT_OK) {
+            if (requestCode == IMAGE_CAPTURE_REQUEST_CODE) {
+                photoRequestActive = false;
+            }
+            return;
+        }
+        Uri currentPhotoURI;
+        if (requestCode == READ_REQUEST_CODE) {
+            currentPhotoURI = resultData.getData();
+        } else if (requestCode == IMAGE_CAPTURE_REQUEST_CODE) {
+            currentPhotoURI = Uri.fromFile(currentPhotoFile);
+            photoRequestActive = false;
+        } else {
+            return;
+        }
+        Log.d(TAG, "Photo selection produced URI " + currentPhotoURI);
+        loadPhoto(currentPhotoURI);
+    }
+
+    /**
+     * Load a photo and prepare for viewing.
+     *
+     * @param currentPhotoURI URI of the image to process
+     */
+    private void loadPhoto(final Uri currentPhotoURI) {
+
+        if (currentPhotoURI == null) {
+            Toast.makeText(getApplicationContext(), "No image selected",
+                    Toast.LENGTH_LONG).show();
+            Log.w(TAG, "No image selected");
+            return;
+        }
+        String uriScheme = currentPhotoURI.getScheme();
+
+        byte[] imageData;
+        try {
+            assert uriScheme != null;
+            switch (uriScheme) {
+                case "file":
+                    imageData =
+                            FileUtils.readFileToByteArray(new File(
+                                    Objects.requireNonNull(currentPhotoURI.getPath())));
+                    break;
+                case "content":
+                    InputStream inputStream = getContentResolver().openInputStream(currentPhotoURI);
+                    assert inputStream != null;
+                    imageData = IOUtils.toByteArray(inputStream);
+                    inputStream.close();
+                    break;
+                default:
+                    Toast.makeText(getApplicationContext(), "Unknown scheme " + uriScheme,
+                            Toast.LENGTH_LONG).show();
+                    return;
+            }
+        } catch (IOException e) {
+            Toast.makeText(getApplicationContext(), "Error processing file",
+                    Toast.LENGTH_LONG).show();
+            Log.w(TAG, "Error processing file: " + e);
+            return;
+        }
+
+
+    }
