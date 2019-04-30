@@ -21,6 +21,30 @@ public class Transform {
      * @return the shifted image
      */
     public static RGBAPixel[][] blurring(final RGBAPixel[][] inputArray, final int blurAmount) {
+        int remainderX = inputArray.length % blurAmount;
+        int remainderY = inputArray[0].length % blurAmount;
+        RGBAPixel[][] result = new RGBAPixel[inputArray.length - remainderX][inputArray[0].length - remainderY];
+        RGBAPixel[][] tile = new RGBAPixel[blurAmount][blurAmount];
+        for (int i = 0; i < result.length; i += blurAmount) {
+            for (int j = 0; j < result[0].length; j += blurAmount) {
+                for (int k = 0; k < blurAmount; k++) {
+                    for (int l = 0; l < blurAmount; l++) {
+                        tile[k][l] = inputArray[i + k][j + l];
+                    }
+                }
+                RGBAPixel average = RGBAPixel.blur(tile, blurAmount, blurAmount);
+                for (int k = 0; k < blurAmount; k++) {
+                    for (int l = 0; l < blurAmount; l++) {
+                         result[i + k][j + l] = average;
+                    }
+                }
+
+            }
+        }
+        return result;
+
+
+        /*
         RGBAPixel[][] badtime = new RGBAPixel[inputArray.length][inputArray[0].length];
         RGBAPixel cool = RGBAPixel.blur(inputArray,inputArray.length,inputArray[0].length);
         for (int i = 0; i < badtime.length; i++) {
@@ -29,6 +53,7 @@ public class Transform {
             }
         }
         return badtime;
+        */
     }
 
 
