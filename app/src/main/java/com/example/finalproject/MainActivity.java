@@ -58,6 +58,9 @@ public class MainActivity extends AppCompatActivity {
     /** Request queue for our network requests. */
     private static RequestQueue requestQueue = null;
 
+    /** Constant to perform a read file request. */
+    private static final int READ_REQUEST_CODE = 42;
+
 
     /**
      * Default JPEG save quality.
@@ -123,6 +126,7 @@ public class MainActivity extends AppCompatActivity {
         findImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                startOpenFile();
                 /*
                 should find the image and store it as something.
                  */
@@ -171,6 +175,7 @@ public class MainActivity extends AppCompatActivity {
         send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 saveCurrentBitmap();
             }
         });
@@ -187,6 +192,14 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
+
+    private void startOpenFile() {
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("image/*");
+        startActivityForResult(intent, READ_REQUEST_CODE);
+    }
+
 
     private void startProcessImage(final String action) {
         if (bitmap == null) {
