@@ -57,6 +57,7 @@ at the signified amount.
 
 public class MainActivity extends AppCompatActivity {
 
+
     /**
      * the factor determined by the spinner
      */
@@ -166,15 +167,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 if (position == 0) {
-                    FACTOR = 64;
+                    FACTOR = 5;
                 } else if (position == 1) {
-                    FACTOR = 32;
-                } else if (position == 2) {
-                    FACTOR = 16;
-                } else if (position == 3) {
-                    FACTOR = 8;
-                } else if (position == 4) {
                     FACTOR = 4;
+                } else if (position == 2) {
+                    FACTOR = 3;
+                } else if (position == 3) {
+                    FACTOR = 2;
                 }
                 startProcessImage("blur");
                 /*
@@ -450,7 +449,6 @@ public class MainActivity extends AppCompatActivity {
         final ImageView photoView = findViewById(R.id.imageV);
         double targetWidth = photoView.getWidth();
         double targetHeight = photoView.getHeight();
-
         BitmapFactory.Options decodeOptions = new BitmapFactory.Options();
         decodeOptions.inJustDecodeBounds = true;
         BitmapFactory.decodeByteArray(imageData, 0, imageData.length, decodeOptions);

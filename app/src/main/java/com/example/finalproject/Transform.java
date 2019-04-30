@@ -11,10 +11,6 @@ our google search api key
 
 public class Transform {
 
-
-
-
-
     /**
      * Blurs the image as much as possible.
      *
@@ -23,6 +19,29 @@ public class Transform {
      * @return the shifted image
      */
     public static RGBAPixel[][] blurring(final RGBAPixel[][] inputArray, final int blurAmount) {
+        RGBAPixel[][] badtime = new RGBAPixel[inputArray.length][inputArray[0].length];
+        RGBAPixel cool = RGBAPixel.blur(inputArray,inputArray.length,inputArray[0].length);
+        for (int i = 0; i < badtime.length; i++) {
+            for (int j = 0; j < badtime[0].length; j++) {
+                badtime[i][j] = cool;
+            }
+        }
+        return badtime;
+    }
+
+
+
+
+
+
+        /**
+         * Blurs the image as much as possible.
+         *
+         * @param inputArray the given image
+         * @param blurAmount how much (higher number is less blur)
+         * @return the shifted image
+         */
+    public static RGBAPixel[][] blurrting(final RGBAPixel[][] inputArray, final int blurAmount) {
         if (inputArray == null || inputArray.length == 0 || inputArray[0].length == 0) {
             return null;
         }
@@ -37,17 +56,16 @@ public class Transform {
             }
         }
         RGBAPixel[][] tile = new RGBAPixel[tileSizeX][tileSizeY];
-        int counter = 0;
-        big: for (int i = 0; i < inputArray.length - leftoversOne; i++) {
-            for (int j = 0; j < inputArray[i].length - leftoversTwo; j++) {
+        big: for (int i = 0; i < inputArray.length - (leftoversOne); i+= tileSizeX) {
+            for (int j = 0; j < inputArray[i].length - (leftoversTwo); j += tileSizeY) {
                 /*
                 tile[i][j] = inputArray[i + counter][j + counter];
                 */
                 /*
                  * this is copying
                  */
-                for (int k = 0; k < tileSizeX; k++) {
-                    for (int l = 0; l < tileSizeY; l++) {
+                for (int k = 0; k < tileSizeX - 1; k++) {
+                    for (int l = 0; l < tileSizeY - 1; l++) {
                         tile[k][l] = inputArray[i + k][j + l];
                     }
                 }
@@ -56,12 +74,9 @@ public class Transform {
                  */
                 for (int k = 0; k < tileSizeX; k++) {
                     for (int l = 0; l < tileSizeY; l++) {
-                        tile[i][j] = inputArray[i + counter][j + counter];
                         result[i + k][j + l] = RGBAPixel.blur(tile, tileSizeX, tileSizeY);
                     }
                 }
-                i += tileSizeX;
-                j += tileSizeY;
                 continue big;
             }
         }
@@ -71,7 +86,7 @@ public class Transform {
          */
         int startingPoint = inputArray[0].length - leftoversTwo;
         RGBAPixel[][] BRemains = new RGBAPixel[tileSizeX][leftoversTwo];
-        for (int i = 0; i < inputArray.length - leftoversOne; i++) {
+        for (int i = 0; i < inputArray.length - leftoversOne; i += tileSizeX) {
             /*
              * copying
              */
@@ -89,14 +104,13 @@ public class Transform {
                             = RGBAPixel.blur(BRemains, tileSizeX, leftoversTwo);
                 }
             }
-            i += tileSizeX;
         }
         /*
         blurring the side part
          */
         int startingPointS = inputArray.length - leftoversOne;
         RGBAPixel[][] SRemains = new RGBAPixel[leftoversOne][tileSizeY];
-        for (int i = 0; i < inputArray.length - leftoversOne; i++) {
+        for (int i = 0; i < inputArray.length - leftoversOne; i += tileSizeY) {
             /*
              * copying
              */
@@ -114,7 +128,6 @@ public class Transform {
                             = RGBAPixel.blur(SRemains, leftoversOne, tileSizeY);
                 }
             }
-            i += tileSizeY;
         }
         RGBAPixel[][] lastbit = new RGBAPixel[leftoversOne][leftoversTwo];
         for (int i = 0; i < leftoversOne; i++) {
