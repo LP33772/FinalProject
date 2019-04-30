@@ -17,6 +17,8 @@ import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.Toast;
@@ -43,6 +45,10 @@ public class MainActivity extends AppCompatActivity {
 
 
     private static final String TAG = "MainActivity";
+
+    Spinner degree;
+    ArrayAdapter<CharSequence> adapter;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,7 +80,25 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        Spinner degree = (Spinner) findViewById(R.id.spinner);
+        degree = findViewById(R.id.spinner);
+        adapter
+                = ArrayAdapter.createFromResource(this, R.array.degrees, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        degree.setAdapter(adapter);
+        degree.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                /*
+                make the thingy bad
+                 */
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+
+
         /*
         should set the amount.
          */
@@ -129,7 +153,7 @@ public class MainActivity extends AppCompatActivity {
      * @return the path to the new file or null of the create failed
      */
     File getSaveFilename() {
-        String imageFileName = "MP1_" + new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US)
+        String imageFileName = "Blurred" + new SimpleDateFormat("DDMMYYYY_HHmmss", Locale.US)
                 .format(new Date());
         File storageDir;
         if (canWriteToPublicStorage) {
@@ -141,7 +165,6 @@ public class MainActivity extends AppCompatActivity {
         try {
             return File.createTempFile(imageFileName, ".jpg", storageDir);
         } catch (IOException e) {
-            Log.w(TAG, "Problem saving file: " + e);
             return null;
         }
     }

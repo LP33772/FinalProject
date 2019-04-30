@@ -399,7 +399,6 @@ public class RGBAPixel {
     }
 
     public static RGBAPixel blur(RGBAPixel[][] input, int amountX, int amountY) {
-        RGBAPixel[][] result = new RGBAPixel[amountX][amountY];
         int averageOne = 0;
         int averageTwo = 0;
         int averageThree = 0;
