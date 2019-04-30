@@ -140,15 +140,20 @@ public class MainActivity extends AppCompatActivity {
 
         Button findImage = (Button) findViewById(R.id.button);
 
+        findImage.setOnClickListener(v -> {
+            startOpenFile();
+        });
+        /*
+                should find the image and store it as something.
+
         findImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startOpenFile();
-                /*
-                should find the image and store it as something.
-                 */
             }
         });
+        */
+
         /*
         https://www.youtube.com/watch?v=28jA5-mO8K8
          */
@@ -206,6 +211,7 @@ public class MainActivity extends AppCompatActivity {
                     new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                     REQUEST_WRITE_STORAGE);
         }
+
 
 
     }
@@ -441,6 +447,25 @@ public class MainActivity extends AppCompatActivity {
             Log.w(TAG, "Error processing file: " + e);
             return;
         }
+        final ImageView photoView = findViewById(R.id.imageV);
+        double targetWidth = photoView.getWidth();
+        double targetHeight = photoView.getHeight();
+
+        BitmapFactory.Options decodeOptions = new BitmapFactory.Options();
+        decodeOptions.inJustDecodeBounds = true;
+        BitmapFactory.decodeByteArray(imageData, 0, imageData.length, decodeOptions);
+
+        double actualWidth = decodeOptions.outWidth;
+        double actualHeight = decodeOptions.outHeight;
+        double exactScaleFactor = Math.min(actualWidth / targetWidth, actualHeight / targetHeight);
+        int scaleFactor = (int) Math.round(Math.pow(2, Math.ceil(Math.log(exactScaleFactor) / Math.log(2))));
+        BitmapFactory.Options modifyOptions = new BitmapFactory.Options();
+        modifyOptions.inJustDecodeBounds = false;
+        modifyOptions.inSampleSize = scaleFactor;
+
+        Bitmap decodedBitmap = BitmapFactory.decodeByteArray(imageData, 0, imageData.length, modifyOptions);
+
+        setBitmap(decodedBitmap);
 
 
     }

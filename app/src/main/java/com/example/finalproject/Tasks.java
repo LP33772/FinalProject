@@ -146,6 +146,8 @@ class Tasks {
             action = setAction;
         }
 
+
+
         /**
          * Convert a 1D Bitmap to a 2D RGBAPixel array.
          *
