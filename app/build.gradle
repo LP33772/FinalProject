@@ -1,5 +1,16 @@
 apply plugin: 'com.android.application'
 
+def getApiKey() {
+    Properties props = new Properties()
+    try {
+        props.load(new FileInputStream(project.file('secrets.properties')))
+    } catch (ignore) {
+        return ""
+    }
+    return props['API_KEY']
+}
+
+
 android {
     compileSdkVersion 28
     defaultConfig {
