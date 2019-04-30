@@ -27,12 +27,18 @@ public class Transform {
         RGBAPixel[][] tile = new RGBAPixel[blurAmount][blurAmount];
         for (int i = 0; i < result.length; i += blurAmount) {
             for (int j = 0; j < result[0].length; j += blurAmount) {
+                /*
+                setting up the average value
+                 */
                 for (int k = 0; k < blurAmount; k++) {
                     for (int l = 0; l < blurAmount; l++) {
                         tile[k][l] = inputArray[i + k][j + l];
                     }
                 }
                 RGBAPixel average = RGBAPixel.blur(tile, blurAmount, blurAmount);
+                /*
+                making the result have tiles of that square size, in that average color.
+                 */
                 for (int k = 0; k < blurAmount; k++) {
                     for (int l = 0; l < blurAmount; l++) {
                          result[i + k][j + l] = average;
