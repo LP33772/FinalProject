@@ -45,6 +45,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Objects;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.FileUtils;
+
 
 /*
 I think we need to turn "send" to "save image" instead since you can hijack the MP1 info to do so.
@@ -59,14 +62,20 @@ public class MainActivity extends AppCompatActivity {
      */
     public static int FACTOR = 1;
 
-    /** Constant to request an image capture. */
+    /**
+     * Constant to request an image capture.
+     */
     private static final int IMAGE_CAPTURE_REQUEST_CODE = 1;
 
 
-    /** Request queue for our network requests. */
+    /**
+     * Request queue for our network requests.
+     */
     private static RequestQueue requestQueue = null;
 
-    /** Constant to perform a read file request. */
+    /**
+     * Constant to perform a read file request.
+     */
     private static final int READ_REQUEST_CODE = 42;
 
 
@@ -353,10 +362,14 @@ public class MainActivity extends AppCompatActivity {
     also taken from MP1 -- opening a file is REALLY complicated yeesh
      */
 
-    /** Current file that we are using for our image request. */
+    /**
+     * Current file that we are using for our image request.
+     */
     private boolean photoRequestActive = false;
 
-    /** Whether a current photo request is being processed. */
+    /**
+     * Whether a current photo request is being processed.
+     */
     private File currentPhotoFile = null;
 
     @Override
@@ -380,6 +393,11 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "Photo selection produced URI " + currentPhotoURI);
         loadPhoto(currentPhotoURI);
     }
+
+    /*
+    https://stackoverflow.com/questions/17895557/
+    add-commons-io-dependency-to-gradle-project-in-android-studio/33820307
+     */
 
     /**
      * Load a photo and prepare for viewing.
@@ -425,3 +443,4 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
+}
