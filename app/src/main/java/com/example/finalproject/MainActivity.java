@@ -1,8 +1,16 @@
 package com.example.finalproject;
 
+import android.Manifest;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -13,7 +21,26 @@ import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 public class MainActivity extends AppCompatActivity {
+
+    /** Default JPEG save quality. */
+    private static final int DEFAULT_JPEG_QUALITY = 50;
+
+    /** storage permission status. */
+    private boolean canWriteToPublicStorage = false;
+    /** Constant to request permission to store. */
+    private static final int REQUEST_WRITE_STORAGE = 112;
+
+    /** Current composite image. */
+    private Bitmap bitmap = null;
+
 
     private static final String TAG = "MainActivity";
 
@@ -41,13 +68,35 @@ public class MainActivity extends AppCompatActivity {
         findImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText();
+                /*
+                should find the image and store it as something.
+                 */
             }
         });
 
         Spinner degree = (Spinner) findViewById(R.id.spinner);
+        /*
+        should set the amount.
+         */
 
         Button send = (Button) findViewById(R.id.send);
+
+        send.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                saveCurrentBitmap();
+            }
+        });
+
+        canWriteToPublicStorage = (ContextCompat.checkSelfPermission(MainActivity.this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED);
+        Log.d(TAG, "Do we have permission to write to external storage: "
+                + canWriteToPublicStorage);
+        if (!canWriteToPublicStorage) {
+            ActivityCompat.requestPermissions(MainActivity.this,
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    REQUEST_WRITE_STORAGE);
+        }
 
 
     }
@@ -73,4 +122,65 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+    /**
+     * Get a new file location for saving.
+     *
+     * @return the path to the new file or null of the create failed
+     */
+    File getSaveFilename() {
+        String imageFileName = "MP1_" + new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US)
+                .format(new Date());
+        File storageDir;
+        if (canWriteToPublicStorage) {
+            storageDir = Environment
+                    .getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+        } else {
+            storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        }
+        try {
+            return File.createTempFile(imageFileName, ".jpg", storageDir);
+        } catch (IOException e) {
+            Log.w(TAG, "Problem saving file: " + e);
+            return null;
+        }
+    }
+
+
+    private void saveCurrentBitmap() {
+        if (bitmap == null) {
+            return;
+        }
+
+        File saveFilename = getSaveFilename();
+        try {
+            assert saveFilename != null;
+            FileOutputStream fileOutputStream = new FileOutputStream(saveFilename);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, DEFAULT_JPEG_QUALITY, fileOutputStream);
+            fileOutputStream.close();
+        } catch (IOException e) {
+            Toast.makeText(getApplicationContext(), "Problem saving photo",
+                    Toast.LENGTH_LONG).show();
+            Log.w(TAG, "Problem saving photo");
+            return;
+        }
+
+        Toast.makeText(getApplicationContext(), "Photo saved as " + saveFilename,
+                Toast.LENGTH_LONG).show();
+        addPhotoToGallery(Uri.fromFile(saveFilename));
+    }
+
+    /**
+     * Add a photo to the gallery so that we can use it later.
+     *
+     * @param toAdd URI of the file to add
+     */
+    void addPhotoToGallery(final Uri toAdd) {
+        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+        mediaScanIntent.setData(toAdd);
+        this.sendBroadcast(mediaScanIntent);
+        Log.d(TAG, "Added photo to gallery: " + toAdd);
+    }
+
+
 }
