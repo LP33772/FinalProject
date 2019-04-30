@@ -47,6 +47,7 @@ import java.util.Locale;
 import java.util.Objects;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.FileUtils;
+import java.util.Arrays;
 
 
 /*
@@ -160,7 +161,7 @@ public class MainActivity extends AppCompatActivity {
          */
         degree = findViewById(R.id.spinner);
         adapter
-                = ArrayAdapter.createFromResource(this, R.array.degrees, android.R.layout.simple_spinner_item);
+                = ArrayAdapter.createFromResource(this, R.array.numbers, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         degree.setAdapter(adapter);
         degree.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
