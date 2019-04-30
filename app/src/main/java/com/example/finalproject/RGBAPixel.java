@@ -484,7 +484,6 @@ public class RGBAPixel {
                 return "firstArray.length[" + p + "] != secondArray.length[" + p + "]";
             }
         }
-        // SEE HERE WRITE SOMETHING HERE ASK WHAT THIS iS ASKING ALSO WHY P DOESN'T LOOP
 
         return "The two arrays are equivalent";
     }

@@ -3,6 +3,8 @@ package com.example.finalproject;
 /*
 AIzaSyAuVQ5NGMp6nBNAc_OaIlczmFcoOyUIYeU
 our google search api key
+SEE HERE
+just figure out how to get the transform to work without crashing -- how will we do the blur ,essentially.
  */
 
 

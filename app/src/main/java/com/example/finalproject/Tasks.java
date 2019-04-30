@@ -73,8 +73,6 @@ class Tasks {
 
         /**
          * Download a file, save it to the storage device if possible, and update the image.
-         * SEE HERE
-         * Can't figure out how it gets the image and assigns it to the bitmap in activity.
          *
          * @param downloadURL the URL to download
          * @return return value is ignored but required to extend AsyncTask

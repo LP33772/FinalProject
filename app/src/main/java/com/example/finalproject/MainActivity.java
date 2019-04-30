@@ -249,8 +249,6 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Update the currently displayed image.
-     * SEE HERE
-     * I can't get this to work either sigh
      *
      * @param setBitmap the new bitmap to display
      */
