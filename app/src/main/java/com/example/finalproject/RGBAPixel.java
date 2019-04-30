@@ -1,6 +1,5 @@
 package com.example.finalproject;
 
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
 
@@ -399,22 +398,23 @@ public class RGBAPixel {
         return returnArray;
     }
 
-    public static RGBAPixel[][] blur(RGBAPixel[][] input, int amount) {
-        RGBAPixel[][] result = new RGBAPixel[amount][amount];
+    public static RGBAPixel blur(RGBAPixel[][] input, int amountX, int amountY) {
+        RGBAPixel[][] result = new RGBAPixel[amountX][amountY];
         int averageOne = 0;
         int averageTwo = 0;
         int averageThree = 0;
-        for (int i = 0; i < amount; i++) {
-            for (int j = 0; j < amount; j++) {
+        for (int i = 0; i < amountX; i++) {
+            for (int j = 0; j < amountY; j++) {
                 averageOne += input[i][j].getGreen();
                 averageTwo += input[i][j].getBlue();
                 averageThree += input[i][j].getRed();
             }
         }
-        averageOne = averageOne / amount;
-        averageTwo = averageTwo / amount;
-        averageThree = averageThree / amount;
-
+        averageOne = averageOne / (amountX * amountY);
+        averageTwo = averageTwo / (amountX * amountY);
+        averageThree = averageThree / (amountX * amountY);
+        RGBAPixel cool = new RGBAPixel(averageThree, averageOne, averageTwo, 0);
+        /*
         for (int i = 0; i < amount; i++) {
             for (int j = 0; j < amount; j++) {
                 result[i][j].setBlue(averageTwo);
@@ -422,7 +422,8 @@ public class RGBAPixel {
                 result[i][j].setRed(averageThree);
             }
         }
-        return result;
+        */
+        return cool;
 
     }
 
@@ -455,50 +456,6 @@ public class RGBAPixel {
         return returnArray;
     }
 
-    /**
-     * Nicely format an two-dimensional array of RGBAPixels.
-     * <p>
-     * Primarily intended for debugging.
-     *
-     * @param inputArray the two-dimensional RGBAPixel array to format
-     * @return the array nicely formatted as a String for printing
-     */
-    public static String printArray(final RGBAPixel[][] inputArray) {
-        if (inputArray == null) {
-            return null;
-        }
-        if (inputArray.length == 0) {
-            return null;
-        }
-        /*
-         * Make sure inputArray is square
-         * */
-        for (RGBAPixel[] anInputArray : inputArray) {
-            if (anInputArray.length == 0 || anInputArray.length != inputArray[0].length) {
-                return null;
-            }
-        }
-
-        /*
-         * Transpose inputArray
-         */
-        RGBAPixel[][] transposedArray = new RGBAPixel[inputArray[0].length][inputArray.length];
-        for (int i = 0; i < inputArray.length; i++) {
-            for (int j = 0; j < inputArray[0].length; j++) {
-                transposedArray[j][i] = inputArray[i][j];
-            }
-        }
-
-        /*
-         * Finally create the output string array.
-         */
-        String[] outputArray = new String[transposedArray.length];
-        for (int i = 0; i < transposedArray.length; i++) {
-            outputArray[i] = Arrays.deepToString(transposedArray[i]);
-        }
-
-        return StringUtils.join("\n", outputArray);
-    }
 
     /**
      * Testing helper function to explain differences between two arrays.

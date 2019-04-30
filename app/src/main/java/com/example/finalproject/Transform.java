@@ -5,19 +5,19 @@ package com.example.finalproject;
  */
 
 public class Transform {
-    /** RGBA red shift value. */
-    private static final int GREEN = 0xFF00FF00;
     /**
-     * shifts the array left, I believe.
+     * Blurs the image as much as possible.
+     *
      * @param inputArray the given image
-     * @param shiftLeft how left the image shifts
+     * @param blurAmount how much (higher number is less blur)
      * @return the shifted image
      */
     public static RGBAPixel[][] blurring(final RGBAPixel[][] inputArray, final int blurAmount) {
         if (inputArray == null || inputArray.length == 0 || inputArray[0].length == 0) {
             return null;
         }
-        int tiles = Math.min(inputArray.length, inputArray[0].length) / blurAmount;
+        int tileSizeX = inputArray.length / blurAmount;
+        int tileSizeY = inputArray[0].length / blurAmount
         int leftoversOne =  inputArray.length % blurAmount;
         int leftoversTwo = inputArray[0].length % blurAmount;
         RGBAPixel[][] result = new RGBAPixel[inputArray.length][inputArray[0].length];
@@ -26,9 +26,12 @@ public class Transform {
                 result[i][j] = RGBAPixel.getFillValue();
             }
         }
+        RGBAPixel[][] tile = new RGBAPixel[tileSizeX][tileSizeY];
         for (int i = 0; i < inputArray.length; i++) {
             for (int j = 0; j < inputArray[i].length; j++) {
-                result[i][j] = inputArray[i][j];
+                for (int k = 0; k < tileSizeX; k++) {
+                    result[i][j] = RGBAPixel.blur(inputArray, tileSize);
+                }
             }
         }
         return result;
