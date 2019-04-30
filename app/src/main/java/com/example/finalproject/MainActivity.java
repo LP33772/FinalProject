@@ -330,12 +330,21 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "Added photo to gallery: " + toAdd);
     }
 
+    /** Current file that we are using for our image request. */
+    private boolean photoRequestActive = false;
+
+    /** Whether a current photo request is being processed. */
+    private File currentPhotoFile = null;
+
+
     /**
      * URL storing the file to download.
      */
     private String downloadFileURL;
 
-
+    /**
+     * file download process;
+     */
     private void startDownloadFile() {
 
         // Build a dialog that we will use to ask for the URL to the photo
@@ -362,15 +371,7 @@ public class MainActivity extends AppCompatActivity {
     also taken from MP1 -- opening a file is REALLY complicated yeesh
      */
 
-    /**
-     * Current file that we are using for our image request.
-     */
-    private boolean photoRequestActive = false;
 
-    /**
-     * Whether a current photo request is being processed.
-     */
-    private File currentPhotoFile = null;
 
     @Override
     public void onActivityResult(final int requestCode, final int resultCode,
@@ -443,4 +444,6 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
+
+
 }
