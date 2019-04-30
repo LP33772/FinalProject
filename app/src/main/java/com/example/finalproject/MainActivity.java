@@ -1,9 +1,13 @@
 package com.example.finalproject;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -13,6 +17,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.InputType;
 import android.util.Log;
 import android.view.View;
 import android.view.Menu;
@@ -20,8 +25,15 @@ import android.view.MenuItem;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
+
+
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.ImageRequest;
+
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -30,18 +42,41 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+/*
+I think we need to turn "send" to "save image" instead since you can hijack the MP1 info to do so.
+I set the spinner so that when you have certain ones selected it'll start the image transformation but
+at the signified amount.
+ */
+
 public class MainActivity extends AppCompatActivity {
 
-    /** Default JPEG save quality. */
+    /**
+     * the factor determined by the spinner
+     */
+    public static int FACTOR = 1;
+
+    /** Request queue for our network requests. */
+    private static RequestQueue requestQueue = null;
+
+
+    /**
+     * Default JPEG save quality.
+     */
     private static final int DEFAULT_JPEG_QUALITY = 50;
 
-    /** storage permission status. */
+    /**
+     * storage permission status.
+     */
     private boolean canWriteToPublicStorage = false;
-    /** Constant to request permission to store. */
+    /**
+     * Constant to request permission to store.
+     */
     private static final int REQUEST_WRITE_STORAGE = 112;
 
-    /** Current composite image. */
-    private Bitmap bitmap = null;
+    /**
+     * Current composite image.
+     */
+    public Bitmap bitmap = null;
 
 
     private static final String TAG = "MainActivity";
@@ -56,8 +91,16 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        Log.d(TAG, "onCreate started");
 
+        final ImageView imageView = findViewById(R.id.imageV);
+        imageView.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
+            if (bitmap != null) {
+                setBitmap(bitmap);
+            }
+        });
+
+
+        Log.d(TAG, "onCreate started");
 
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -67,7 +110,13 @@ public class MainActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
+        /*
+        https://stackoverflow.com/questions/5089300/how-can-i-change-the-image-of-an-imageview
+         */
 
+        /*
+        https://www.youtube.com/watch?v=a7gxZKW4VkE
+         */
 
         Button findImage = (Button) findViewById(R.id.button);
 
@@ -79,7 +128,9 @@ public class MainActivity extends AppCompatActivity {
                  */
             }
         });
-
+        /*
+        https://www.youtube.com/watch?v=28jA5-mO8K8
+         */
         degree = findViewById(R.id.spinner);
         adapter
                 = ArrayAdapter.createFromResource(this, R.array.degrees, android.R.layout.simple_spinner_item);
@@ -88,6 +139,18 @@ public class MainActivity extends AppCompatActivity {
         degree.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (position == 0) {
+                    FACTOR = 64;
+                } else if (position == 1) {
+                    FACTOR = 32;
+                } else if (position == 2) {
+                    FACTOR = 16;
+                } else if (position == 3) {
+                    FACTOR = 8;
+                } else if (position == 4) {
+                    FACTOR = 4;
+                }
+                startProcessImage("blur");
                 /*
                 make the thingy bad
                  */
@@ -103,7 +166,7 @@ public class MainActivity extends AppCompatActivity {
         should set the amount.
          */
 
-        Button send = (Button) findViewById(R.id.send);
+        Button send = findViewById(R.id.send);
 
         send.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -125,12 +188,44 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private void startProcessImage(final String action) {
+        if (bitmap == null) {
+            Toast.makeText(getApplicationContext(), "No image selected",
+                    Toast.LENGTH_LONG).show();
+            Log.w(TAG, "No image selected");
+            return;
+        }
+
+        /*
+         * Launch our background task which actually makes the request. It will call
+         * setForegroundBitmap when it completes.
+         */
+        Bitmap toTransform = bitmap;
+        new Tasks.ProcessImageTask(MainActivity.this, action).execute(toTransform);
+    }
+
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
+
+    /**
+     * Update the currently displayed image.
+     * SEE HERE
+     * I can't get this to work either sigh
+     *
+     * @param setBitmap the new bitmap to display
+     */
+    void setBitmap(final Bitmap setBitmap) {
+        bitmap = setBitmap;
+        final ImageView imageV = findViewById(R.id.imageV);
+        imageV.setImageBitmap(bitmap);
+
+    }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -205,5 +300,31 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "Added photo to gallery: " + toAdd);
     }
 
+    /**
+     * URL storing the file to download.
+     */
+    private String downloadFileURL;
 
+
+    private void startDownloadFile() {
+
+        // Build a dialog that we will use to ask for the URL to the photo
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setTitle("Download File");
+        final EditText input = new EditText(MainActivity.this);
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
+        builder.setView(input);
+        builder.setPositiveButton("OK", (dialog, unused) -> {
+
+            // If the user clicks OK, try and download the file
+            downloadFileURL = input.getText().toString().trim();
+            Log.d(TAG, "Got download URL " + downloadFileURL);
+            new Tasks.DownloadFileTask(MainActivity.this, requestQueue)
+                    .execute(downloadFileURL);
+        });
+        builder.setNegativeButton("Cancel", (dialog, unused) -> dialog.cancel());
+
+
+    }
 }
